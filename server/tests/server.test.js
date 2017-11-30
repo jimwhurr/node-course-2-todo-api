@@ -19,8 +19,8 @@ describe('POST /todos', () => {
             .expect( (res) => {
                 expect(res.body.text).toBe(text);
             })
-            .end( (err, res) => {
-                if (err) {
+            .end( (err, res) => {                       // opportunity to do last checks
+                if (err) {                              // e.g. examine state of DB
                     return done(err);                   // return - to stop execution flow
                 }
 

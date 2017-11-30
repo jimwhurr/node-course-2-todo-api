@@ -21,6 +21,18 @@ app.post('/todos', (req, res) => {
     });
 });
 
+
+app.get('/todos', (req, res) => {
+    // get all todos
+    Todo.find().then( (todos) => {
+        res.send( { todos } );                  // as object - can add properties later
+    }, (e) => {
+        // error case
+        res.status(400).send(e);
+    });
+
+});
+
 app.listen(3000, () => {
     console.log('Server started on port 3000, ctrl-C to exit');
 });
