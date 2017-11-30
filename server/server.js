@@ -24,3 +24,5 @@ app.post('/todos', (req, res) => {
 app.listen(3000, () => {
     console.log('Server started on port 3000, ctrl-C to exit');
 });
+
+module.exports = { app };                     // ES 6 notation for { app: app }
