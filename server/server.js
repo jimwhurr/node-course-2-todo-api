@@ -7,6 +7,7 @@ const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
@@ -55,8 +56,8 @@ app.get('/todos/:id', (req, res) => {
 });
 
 
-app.listen(3000, () => {
-    console.log('Server started on port 3000, ctrl-C to exit');
+app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}, ctrl-C to exit`);
 });
 
 module.exports = { app };                     // ES 6 notation for { app: app }
