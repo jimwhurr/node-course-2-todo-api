@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
@@ -59,7 +61,7 @@ app.get('/todos/:id', (req, res) => {
 app.delete('/todos/:id', (req, res) => {
     const id = req.params.id;
 
-    // validate is
+    // validate id
     if ( ! ObjectID.isValid(id) ) {
         return res.status(404).send();
     }
@@ -71,6 +73,39 @@ app.delete('/todos/:id', (req, res) => {
         res.send( { todo } );               // ok!
     }, (e) => {
         res.status(400).send();                 // bad query
+    });
+});
+
+
+app.patch('/todos/:id', (req, res) => {
+    const id = req.params.id;
+
+    // user should only be able to change some fields, so PICK them...
+    var body = _.pick(req.body, ['text', 'completed']);
+
+    // validate id
+    if ( ! ObjectID.isValid(id) ) {
+        return res.status(404).send();
+    }
+
+    // if changing completed state then need to reflect in completedAt
+    if (_.isBoolean(body.completed) && body.completed) {
+        body.completedAt = Date.now();
+    }
+    else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+    // now query/update ({new: true} requests return of the updated doc)
+    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then( (todo) => {
+        if ( ! todo ) {
+            return res.status(404).send();
+        }
+
+        res.send( {todo} );
+    }).catch( (e) => {
+        res.status(400).send();
     });
 });
 

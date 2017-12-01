@@ -123,7 +123,7 @@ describe('DELETE /todos/:id', () => {
 
                 // check that data is NOT in the DB
                 Todo.findById(hexId).then( (todo) => {
-                    expect(todo).toBe(null);
+                    expect(todo).toBe(null);;
                     done();
                 }).catch( (e) => done(e) );
             });        
