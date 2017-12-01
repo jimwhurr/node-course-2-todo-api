@@ -12,9 +12,32 @@ const testTodos = [
     },
     {
         _id: new ObjectID(),
-        text: 'Second test todo'
+        text: 'Second test todo',
+        completed: true,
+        completedAt:333
     }
 ];
+
+// Can extend latest version of expect, e.g...
+// expect.extend({
+//     toEqualString(received, argument) {
+//         const pass = (received === argument);
+
+//         if (pass) {
+//             return {
+//                 message: () => `expected ${received} not to match ${argument}`,
+//                 pass: true
+//             };
+//         }
+//         else {
+//             return {
+//                 message: () => `expected ${received} to match ${argument}`,
+//                 pass: false
+//             };
+//         }     
+//     }
+// });
+
 
 beforeEach( (done) => {
     Todo.remove({}).then( () => {
@@ -140,5 +163,53 @@ describe('DELETE /todos/:id', () => {
         request(app).delete('/todos/123ABC')
             .expect(404)
             .end(done);
+    }); // end it()
+}); // end describe()
+
+
+describe('PATCH /todos/:id', () => {
+
+    // update text and completed to true
+    // 200
+    // response body is changed, completed true, completedAT set to number
+
+    it('should update the todo', (done) => {
+        const hexId = testTodos[0]._id.toHexString();
+        const text = 'Updated first item';
+
+        request(app).patch(`/todos/${hexId}`)
+            .send({
+                completed: true,
+                text: text
+            })
+            .expect(200)
+            .expect( (res) => {
+                expect(res.body.todo.text).toBe(text);
+                expect(res.body.todo.completed).toBe(true);
+                expect(res.body.todo.completedAt).toBeA('number');
+            })
+            .end(done);
+    }); // end it()
+
+    // update text and completed to true
+    // 200
+    // response body is changed, completed true, completedAT set to number
+
+    it('should clear completedAt when todo changed to uncompleted', (done) => {
+        const hexId = testTodos[1]._id.toHexString();
+        const text = 'completely new text';
+        request(app).patch(`/todos/${hexId}`)
+            .send({
+                completed: false,
+                text: text
+            })
+            .expect(200)
+            .expect( (res) => {
+                expect(res.body.todo.text).toBe(text);
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.completedAt).toNotExist();
+            })
+            .end(done);
+    
     }); // end it()
 }); // end describe()
