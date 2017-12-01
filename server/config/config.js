@@ -1,4 +1,5 @@
 const env = process.env.NODE_ENV || 'development';
+// Note: process.env.NODE_ENV will be already set in heroku (production)
 
 if (env === 'development') {
     process.env.PORT = 3000;
