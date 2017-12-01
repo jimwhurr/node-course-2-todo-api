@@ -11,5 +11,5 @@ else if (env === 'test') {
 }
 else {
     // db on mlab, production code for heroku
-    process.env.MONGODB_URI = 'mongodb://jimwhurr;5MarshRise@ds127506.mlab.com:27506/todoapp';    
+    process.env.MONGODB_URI = 'mongodb://todoer:nodeman01@ds127506.mlab.com:27506/todoapp';    
 }
