@@ -34,7 +34,10 @@ const UserSchema = new mongoose.Schema({
     }]
 });
 
-// override toJSON method, filtering out private parts of the schema
+
+/////////////////// I N S T A N C E   M E T H O D S ///////////////////
+
+// override toJSON method, selecting only public parts of the schema
 UserSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();
@@ -56,6 +59,31 @@ UserSchema.methods.generateAuthToken = function () {    // done because we need 
         return token;
     });
 };
+
+////////////////////// M O D E L   M E T H O D S //////////////////////
+
+UserSchema.statics.findByToken = function(token) {
+    const User = this;
+    let decoded;
+
+    try {   //jwt.verify() may throw exceptions
+        decoded = jwt.verify(token, 'abc123');        
+    }
+    catch (e) {
+        // return new Promise((resolve, reject) => {
+        //     reject();
+        //});
+        return Promise.reject();
+    }
+
+    return User.findOne({       // returning a promise to the caller     
+        '_id': decoded._id,
+        'tokens.token': token,  // note: quaotes required when firled name has a .
+        'tokens.access': 'auth'
+    });
+};
+
+///////////////////////////////////////////////////////////////////////
 
 const User = mongoose.model('User', UserSchema);
 

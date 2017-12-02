@@ -8,6 +8,7 @@ const {ObjectID} = require('mongodb');
 const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
+const { authenticate } = require('./middleware/authenticate');
 
 const app = express();
 const PORT = process.env.PORT;
@@ -125,6 +126,14 @@ app.post('/users', (req, res) => {
         console.log('error:', e);
         res.status(400).send(e);        
     });
+});
+
+
+// this route changes to call the authenticate middleware which modified
+// the request object. so now we can just return the middleware prepared
+// object.
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
 });
 
 
