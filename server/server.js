@@ -111,6 +111,23 @@ app.patch('/todos/:id', (req, res) => {
 });
 
 
+// POST /users
+app.post('/users', (req, res) => {
+    const body = _.pick(req.body, ['email', 'password']);
+
+    const user = new User(body);
+
+    user.save().then( () => {
+        return user.generateAuthToken();        // returns the promise setup in model
+    }).then( (token) => {
+        res.header('x-auth', token).send(user); // token also pushed to tokens array
+    }).catch( (e) => {
+        console.log('error:', e);
+        res.status(400).send(e);        
+    });
+});
+
+
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}, ctrl-C to exit`);
 });
