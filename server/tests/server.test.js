@@ -259,7 +259,7 @@ describe('POST /users', () => {
             .end(done);
     }); // end it()
 
-    it('should not create user if email is a duplicate', (done) => {
+    it('should not create suser if email is a duplicate', (done) => {
         request(app).post('/users')
             .send({
                 email: users[1].email,

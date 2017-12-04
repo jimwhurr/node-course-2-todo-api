@@ -134,6 +134,21 @@ app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
 });
 
+// provide login in case users token is lost/invalid. login with email & pwd
+app.post('/users/login', (req, res) => {
+    const body = _.pick(req.body, ['email', 'password']);
+    
+    User.findByCredentials(body.email, body.password).then((user) => {
+        // do the return to keep the chain alive so that any errors will
+        // trigger the outer catch (below)
+        return user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user); // token also pushed to tokens array            
+        });
+    }).catch((e) => {
+        res.status(400).send();
+    });
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}, ctrl-C to exit`);
