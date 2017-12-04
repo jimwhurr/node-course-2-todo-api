@@ -283,7 +283,7 @@ describe('POST /users/login', () => {
             })
             .end((err, res) => {
                 if (err) {
-                    return done(e);
+                    return done(err);
                 }
 
                 User.findById(users[1]._id).then((user) => {
@@ -294,7 +294,7 @@ describe('POST /users/login', () => {
                     done();
                 }).catch((e) => done(e));
             });
-    });
+    }); // end it()
 
     it('should reject invalid login', (done) => {
         // pass invalid password - 400, toke not exist, token.length = 0
@@ -309,7 +309,7 @@ describe('POST /users/login', () => {
             })
             .end((err, res) => {
                 if (err) {
-                    return done(e);
+                    return done(err);
                 }
 
                 User.findById(users[1]._id).then((user) => {
@@ -317,5 +317,24 @@ describe('POST /users/login', () => {
                     done();
                 }).catch((e) => done(e));
             });
-    });
+    }); // end it()
+}); // end describe()
+
+describe('DELETE /users/me/token', () => {
+    it('should remove auth token on logout', (done) => {
+        request(app).delete('/users/me/token')
+            .set('x-auth', users[0].tokens[0].token)        // set the auth token
+            .send()
+            .expect(200)
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+
+                User.findById(users[0]._id).then((user) => {
+                    expect(user.tokens.length).toBe(0);
+                    done();
+                }).catch((e) => done(e));
+            });
+    }); // end it()
 }); // end describe()
