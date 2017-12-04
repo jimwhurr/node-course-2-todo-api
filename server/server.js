@@ -15,9 +15,10 @@ const PORT = process.env.PORT;
 
 app.use(bodyParser.json());
 
-app.post('/todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {
     const todo = new Todo({
-        text: req.body.text
+        text: req.body.text,
+        _creator: req.user._id
     });
 
     todo.save().then( (doc) => {
@@ -28,9 +29,11 @@ app.post('/todos', (req, res) => {
 });
 
 
-app.get('/todos', (req, res) => {
-    // get all todos
-    Todo.find().then( (todos) => {
+app.get('/todos', authenticate, (req, res) => {
+    // get all todos (modified to get only those of which user is creator)
+    Todo.find({
+        _creator: req.user._id
+    }).then( (todos) => {
         res.send( { todos } );                 // as object - can add properties later
     }, (e) => {
         // error case
@@ -39,7 +42,7 @@ app.get('/todos', (req, res) => {
 });
 
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
     const id = req.params.id;
 
     // validate is
@@ -47,7 +50,10 @@ app.get('/todos/:id', (req, res) => {
         return res.status(404).send();
     }
     
-    Todo.findById(id).then( (todo) => {
+    Todo.findOne({
+        _id: id,
+        _creator: req.user._id
+    }).then( (todo) => {
         if ( ! todo ) {                         // ok but no record
             res.status(404).send();
         }
@@ -60,7 +66,7 @@ app.get('/todos/:id', (req, res) => {
 });
 
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
     const id = req.params.id;
 
     // validate id
@@ -68,7 +74,10 @@ app.delete('/todos/:id', (req, res) => {
         return res.status(404).send();
     }
     
-    Todo.findByIdAndRemove(id).then( (todo) => {
+    Todo.findOneAndRemove({
+        _id: id,
+        _creator: req.user._id
+    }).then( (todo) => {
         if ( ! todo ) {                         // ok but no record
             return res.status(404).send();
         }
@@ -79,7 +88,7 @@ app.delete('/todos/:id', (req, res) => {
 });
 
 
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
     const id = req.params.id;
 
     // user should only be able to change some fields, so PICK them...
@@ -100,7 +109,8 @@ app.patch('/todos/:id', (req, res) => {
     }
 
     // now query/update ({new: true} requests return of the updated doc)
-    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then( (todo) => {
+    //Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then( (todo) => {
+    Todo.findOneAndUpdate({_id: id, _creator: req.user._id}, {$set: body}, {new: true}).then( (todo) => {
         if ( ! todo ) {
             return res.status(404).send();
         }
